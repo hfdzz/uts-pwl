@@ -12,8 +12,24 @@ def setup_models(dbsession):
     Add or update models / fixtures in the database.
 
     """
-    model = models.mymodel.MyModel(name='one', value=1)
-    dbsession.add(model)
+    # remove existing data
+    dbsession.query(models.Product).delete()
+    # get dummy data
+    import csv
+    with open('uts_backend/dummy_data/uts-pwl.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            # if row['id'] == '64':
+            #     break
+            product = models.Product(
+                id=int(row['id']),
+                name=row['name'],
+                price=float(row['price']),
+                description=row['description'],
+                image=row['image']
+            )
+            dbsession.add(product)
+
 
 
 def parse_args(argv):

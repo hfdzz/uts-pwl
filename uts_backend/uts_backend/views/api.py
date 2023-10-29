@@ -49,12 +49,13 @@ class ProductView:
         """
         try:
             query = self.request.dbsession.query(models.Product)
-            products = query.limit(1).offset(0).all()
+            products = query.limit(50).offset(0).all()
             products_json = []
             for product in products:
                 products_json.append(product.to_json())
         except SQLAlchemyError:
-            return Response(db_err_msg, content_type='text/plain', status=500)
+            # return Response(db_err_msg, content_type='text/plain', status=500)
+            return cors_response({'products': None})
         return cors_response({'products': products_json})
     
     @view_config(route_name='add', request_method='POST')
@@ -81,7 +82,8 @@ class ProductView:
             self.request.dbsession.flush()
             self.request.dbsession.refresh(product)
         except SQLAlchemyError:
-            return Response(db_err_msg, content_type='text/plain', status=500)
+            # return Response(db_err_msg, content_type='text/plain', status=500)
+            return cors_response({'product': None})
         return cors_response(product.to_json())
     
     @view_config(route_name='edit', request_method='PUT')
@@ -107,7 +109,8 @@ class ProductView:
             self.request.dbsession.flush()
             self.request.dbsession.refresh(product)
         except SQLAlchemyError:
-            return Response(db_err_msg, content_type='text/plain', status=500)
+            # return Response(db_err_msg, content_type='text/plain', status=500)
+            return cors_response({'product': None})
         return cors_response(product.to_json())
     
     @view_config(route_name='delete', request_method='DELETE')
@@ -124,7 +127,8 @@ class ProductView:
             product = self.request.dbsession.query(models.Product).filter(models.Product.id == self.request.json_body['id']).one()
             self.request.dbsession.delete(product)
         except SQLAlchemyError:
-            return Response(db_err_msg, content_type='text/plain', status=500)
+            # return Response(db_err_msg, content_type='text/plain', status=500)
+            return cors_response({'product': None})
         return cors_response(product.to_json())
     
     @view_config(route_name='total', request_method='POST')
@@ -137,19 +141,20 @@ class ProductView:
             "ids": [1, 2]\n
         }
         """
+        print(self.request)
         try:
             total = 0
             for id in self.request.json_body['ids']:
                 product = self.request.dbsession.query(models.Product).filter(models.Product.id == id).one()
                 total += product.price
         except SQLAlchemyError:
-            return Response(db_err_msg, content_type='text/plain', status=500)
+            return cors_response({'total': None})
         return cors_response({'total': total})
     
     @view_config(route_name='product_detail', request_method='POST')
     def get_product_detail(self):
         """
-        Get detail of a product from database base on given produc ID.
+        Get detail of a product from database base on given product ID.
 
         Example request body:\n
         {\n
@@ -159,9 +164,23 @@ class ProductView:
         try:
             product = self.request.dbsession.query(models.Product).filter(models.Product.id == self.request.json_body['id']).one()
         except SQLAlchemyError:
-            return Response(db_err_msg, content_type='text/plain', status=500)
+            return cors_response({'product': None})
         return cors_response(product.to_json())
     
+    @view_config(route_name='edit', request_method='OPTIONS')
+    @view_config(route_name='delete', request_method='OPTIONS')
+    def options(self):
+        """
+        Return CORS headers for OPTIONS request.
+        """
+        self.request.response.headers.update({
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Origin, Content-Type, Accept, Authorization',
+            'Access-Control-Allow-Credentials': 'true',
+            'Access-Control-Max-Age': '1728000',
+        })
+        return self.request.response
 
 
 db_err_msg = """\

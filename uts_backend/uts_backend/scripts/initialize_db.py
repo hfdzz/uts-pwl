@@ -19,8 +19,8 @@ def setup_models(dbsession):
     with open('uts_backend/dummy_data/uts-pwl.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            # if row['id'] == '64':
-            #     break
+            if row['id'] == '10':
+                break
             product = models.Product(
                 id=int(row['id']),
                 name=row['name'],

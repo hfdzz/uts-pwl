@@ -1,33 +1,45 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom/client'
-// import App from './App.jsx'
-import './index.css'
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
 
-// ReactDOM.createRoot(document.getElementById('root')).render(
-//   <React.StrictMode>
-//     <App />
-//   </React.StrictMode>,
-// )
+import App from './App.jsx'
 
-function App() {
-  const [data, setData] = useState({});
-  useEffect(() => {
-    const test = async () => {
-      const response = await fetch('http://127.0.0.1:6543/products')
-      const data = await response.json()
-      console.log(data)
-    }
-    test();
-  }, []);
-  return (
-    <div>
-      <h1>Test</h1>
-    </div>
-  )
-}
+import Add_edit, {
+  loader as addEditLoader
+} from './pages/add_edit.jsx'
+
+import Detail, {
+  loader as productLoader
+} from './pages/detail.jsx'
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+  },
+  {
+    path: "add/",
+    element: <Add_edit />,
+    loader: addEditLoader,
+  },
+  {
+    path: "product/:id/edit",
+    element: <Add_edit />,
+    loader: addEditLoader,
+  },
+  {
+    path: "product/:id",
+    element: <Detail />,
+    loader: productLoader,
+  },
+]);
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>,
 )

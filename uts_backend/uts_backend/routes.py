@@ -6,5 +6,5 @@ def includeme(config):
     config.add_route('edit', '/edit')
     config.add_route('delete', '/delete')
     config.add_route('total', '/total')
-    config.add_route('product_detail', '/product/{id}')
+    config.add_route('product_detail', '/product')
     
